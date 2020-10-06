@@ -45,7 +45,16 @@ Just creating the 2X2 grid:
 ffmpeg -i input0 -i input1 -i input2 -i input3 -filter_complex "[0:v][1:v]hstack=inputs=2[top];[2:v][3:v]hstack=inputs=2[bottom];[top][bottom]vstack=inputs=2[v]" -map "[v]" output
   
 '''
+
+
+
 def grid():
+  '''
+  creating 3X2 grid:
+  ffmpeg -i input0.mov -i input1.mov -i input2.mov -i input3.mov -i input4.mov -i input5.mov -filter_complex "[0:v][1:v][2:v][3:v] [4:v] [5:v] xstack=inputs=6:layout=0_0|w0_0|0_h0|w0_h0|w0+w3_0|w0+w3_h0[v]" -map "[v]" 3x2grid.mp4
+  creating 2X2 grid:
+  ffmpeg -i input0 -i input1 -i input2 -i input3 -filter_complex "[0:v][1:v]hstack=inputs=2[top];[2:v][3:v]hstack=inputs=2[bottom];[top][bottom]vstack=inputs=2[v]" -map "[v]" output
+  '''
     pass
 
 if __name__ == "__main__":
