@@ -28,9 +28,13 @@ done
   ffmpeg -i input0 -i input1 -i input2 -i input3 -filter_complex "[0:v][1:v]hstack=inputs=2[top];[2:v][3:v]hstack=inputs=2[bottom];[top][bottom]vstack=inputs=2[v]" -map "[v]" output
 '''
 
-
+def heat():
+#   How many videos, call grid, grid(1) grid(2) grid(3) for i in range(4):
 
 def grid():
+  
+#   input n #of heat. output grid_n.mp4
+# output("grid" + str(n) + ".mp4")
 #  NB!!! This could very likely be made more efficient, on command line arguments I used complex filters, not sure how to translate it into ffmpeg-python yet 
   
 # Take the four competitor's videos:
