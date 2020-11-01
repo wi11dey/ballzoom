@@ -28,74 +28,90 @@ done
   ffmpeg -i input0 -i input1 -i input2 -i input3 -filter_complex "[0:v][1:v]hstack=inputs=2[top];[2:v][3:v]hstack=inputs=2[bottom];[top][bottom]vstack=inputs=2[v]" -map "[v]" output
 '''
 
-def heat():
-#   How many videos, call grid, grid(1) grid(2) grid(3) for i in range(4):
+import sys
+import os, os.path
+import math
+import ffmpeg
 
-def grid():
-  
-#   input n #of heat. output grid_n.mp4
-# output("grid" + str(n) + ".mp4")
-#  NB!!! This could very likely be made more efficient, on command line arguments I used complex filters, not sure how to translate it into ffmpeg-python yet 
-  
-# Take the four competitor's videos:
-
-# in0 = ffmpeg.input('test0.mov')
-# in1 = ffmpeg.input('test1.mov')
-# in0 = ffmpeg.input('test2.mov')
-# in1 = ffmpeg.input('test3.mov')
-
-# Make one horizontal row
-# (
-#     ffmpeg
-#     .filter([in0, in1], 'hstack')
-#     .output('hstack0.mov')
-#     .run()
-# )
-
-# Make another horizontal row
-# (
-#     ffmpeg
-#     .filter([in2, in3], 'hstack')
-#     .output('hstack1.mov')
-#     .run()
-# )
-
-# Take the horizontal rows and put them together vertically
-
-# in0 = ffmpeg.input('hstack0.mov')
-# in1 = ffmpeg.input('hstack1.mov')
-
-# (
-#     ffmpeg
-#     .filter([in0, in1], 'vstack')
-#     .output('grid.mov')
-#     .run()
-# )
+# TODO concat heats
+# TODO add numbers
+# What to do with heats 1-3 videos stylewise?
 
 
-# Add audio:
-# input_video = ffmpeg.input('vstack.mov')
+def main():
+#   Command line - python3 grid.py pathway to the folder
+    heat(sys.argv[1])
 
-# input_audio = ffmpeg.input('testaudio.m4a')
 
-# ffmpeg.concat(input_video, input_audio, v=1, a=1).output('audio_grid.mov').run()
-    pass
+def heat(folder):
+    DIR = folder
+    # reading in the files, likely change .mov to .mp4 but currently just testing with my .mov files
+    files = [name for name in os.listdir(DIR) if name.endswith('.mov') and os.path.isfile(os.path.join(DIR, name))]
 
-def draw_comp_no():
-  
-#   NB! Import OS
-# filename = os.path.splitext(input_file)[0]
-  
-#   Drawing the competitors number on the bottom left corner of the screen
+    print(files)
+    # count the number of videos and call grid
+    heats = math.ceil(len(files)/4)
+    for i in range(0, heats):
+        if i < heats-1:
+            grid(files[(i*4):(i+1)*4], i)
+        else:
+            grid(files[i*4::], i)   
+        
 
-#     in_file = ffmpeg.input('test1.mov')
-# (
-#     ffmpeg
-#     .drawtext(in_file, text="294", x=100, y=600, escape_text=True, fontsize = 108, box=1, boxborderw = 24, boxcolor='white')
-#     .output('testtext100.mov')
-#     .run()
-# ) 
-     pass
+def grid(heatFiles, heat):
+    # if there's 4 files for the heat
+    if len(heatFiles) > 3:
+        in0 = ffmpeg.input(heatFiles[0])
+        in1 = ffmpeg.input(heatFiles[1])
+        in2 = ffmpeg.input(heatFiles[2])
+        in3 = ffmpeg.input(heatFiles[3])
 
-if __name__ == "__main__":
-    pass
+        #Make one horizontal row
+        (
+            ffmpeg
+            .filter([in0, in1], 'hstack')
+            .output("horizontal0" + str(heat) + ".mp4")
+            .run()
+        )
+
+        # #Make another horizontal row
+        (
+            ffmpeg
+            .filter([in2, in3], 'hstack')
+            .output("horizontal1" + str(heat) + ".mp4")
+            .run()
+        )
+
+        # #Take the horizontal rows and put them together vertically
+
+        in0 = ffmpeg.input("horizontal0" + str(heat) + ".mp4")
+        in1 = ffmpeg.input("horizontal1" + str(heat) + ".mp4")
+
+        (
+            ffmpeg
+            .filter([in0, in1], 'vstack')
+            .output("grid" + str(heat) + ".mp4")
+            .run()
+        )
+#         TODO idk what to do in terms of the style
+    else:
+        if len(heatFiles) == 1:
+            print(heat)
+        if len(heatFiles) == 2:
+            print(heat)
+        if len(heatFiles) == 3:
+            print(heat)
+# trying to print the comp numbers, problematic
+    in_file = ffmpeg.input("grid" + str(heat) + ".mp4")
+    (
+        ffmpeg
+        .drawtext(in_file, text="text", x=100, y=600, escape_text=True, fontsize = 108, box=1, boxborderw = 24, boxcolor='white')
+        # .drawtext(in_file, text="text", x=200, y=500, escape_text=True, fontsize = 108, box=1, boxborderw = 24, boxcolor='white')
+        # .drawtext(in_file, text="text", x=300, y=600, escape_text=True, fontsize = 108, box=1, boxborderw = 24, boxcolor='white')
+        # .drawtext(in_file, text="text", x=400, y=600, escape_text=True, fontsize = 108, box=1, boxborderw = 24, boxcolor='white')
+        .output('testtext100.mov')
+        .run()
+    ) 
+
+if __name__ == '__main__':
+    main()
