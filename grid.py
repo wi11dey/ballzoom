@@ -39,6 +39,7 @@ import ffmpeg
 # Do into complex filters so no temp videos
 # also music
 
+# TODO need to fit all videos to common size https://superuser.com/questions/566998/how-can-i-fit-a-video-to-a-certain-size-but-dont-upscale-it-with-ffmpeg
 
 def main():
 #   Command line - python3 grid.py pathway to the folder
