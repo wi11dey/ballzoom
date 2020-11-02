@@ -36,6 +36,8 @@ import ffmpeg
 # TODO concat heats
 # TODO add numbers
 # What to do with heats 1-3 videos stylewise?
+# Do into complex filters so no temp videos
+# also music
 
 
 def main():
