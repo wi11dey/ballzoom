@@ -33,16 +33,13 @@ import os, os.path
 import math
 import ffmpeg
 
-# TODO concat heats
-# TODO add numbers
 # What to do with heats 1-3 videos stylewise?
-# Do into complex filters so no temp videos
 # also music
 
+# TODO add heat#n https://stackoverflow.com/questions/22710099/ffmpeg-create-blank-screen-with-text-video?fbclid=IwAR12ySj7Ck1b3XMIKNZmlhm1-CTAxSKKq1tZhvzR_fQiYEs4m0MXoL1bqlY
 # TODO need to fit all videos to common size https://superuser.com/questions/566998/how-can-i-fit-a-video-to-a-certain-size-but-dont-upscale-it-with-ffmpeg
 
 def main():
-#   Command line - python3 grid.py pathway to the folder
     heat(sys.argv[1])
 
 
@@ -54,67 +51,56 @@ def heat(folder):
     print(files)
     # count the number of videos and call grid
     heats = math.ceil(len(files)/4)
-    for i in range(0, heats):
-        if i < heats-1:
-            grid(files[(i*4):(i+1)*4], i)
-        else:
-            grid(files[i*4::], i)   
+    # heats_temp = ffmpeg.input(grid(files[0: 4], 0))
+    heats_temp = (grid(files[0: 4], 0))
+    if heats > 0:
+        for i in range(1, heats):
+            if i < heats-1:
+                # input files by 4 unless it's the last heat
+                heats_temp = ffmpeg.concat(heats_temp, grid(files[(i*4):(i+1)*4], i))
+            else:
+                (   
+                ffmpeg
+                .concat(heats_temp, grid(files[i*4::], i))
+                .output('heats.mp4')
+                .run()
+                )    
+        
         
 
 def grid(heatFiles, heat):
-    # if there's 4 files for the heat
+    # if there's 4 files for the heat 
     if len(heatFiles) > 3:
         in0 = ffmpeg.input(heatFiles[0])
         in1 = ffmpeg.input(heatFiles[1])
         in2 = ffmpeg.input(heatFiles[2])
         in3 = ffmpeg.input(heatFiles[3])
-
-        #Make one horizontal row
-        (
-            ffmpeg
-            .filter([in0, in1], 'hstack')
-            .output("horizontal0" + str(heat) + ".mp4")
-            .run()
-        )
-
+        # one horizontal input
+        horizontal0 = ffmpeg.filter([in0, in1], 'hstack')
         # #Make another horizontal row
-        (
-            ffmpeg
-            .filter([in2, in3], 'hstack')
-            .output("horizontal1" + str(heat) + ".mp4")
-            .run()
-        )
+        horizontal1 = ffmpeg.filter([in2, in3], 'hstack')        
 
         # #Take the horizontal rows and put them together vertically
+        gridTemp = ffmpeg.filter([horizontal0, horizontal1], 'vstack')
 
-        in0 = ffmpeg.input("horizontal0" + str(heat) + ".mp4")
-        in1 = ffmpeg.input("horizontal1" + str(heat) + ".mp4")
+        # add competitor numbers
+        gridText0 = ffmpeg.drawtext(gridTemp, text=(heatFiles[0].split('.')[0]), x=50, y=570, escape_text=True, fontsize = 108, box=1, boxborderw = 24, boxcolor='white')
+        gridText1 = ffmpeg.drawtext(gridText0, text=(heatFiles[1].split('.')[0]), x=1200, y=570, escape_text=True, fontsize = 108, box=1, boxborderw = 24, boxcolor='white')
+        gridText2 = ffmpeg.drawtext(gridText1, text=(heatFiles[2].split('.')[0]), x=50, y=1300, escape_text=True, fontsize = 108, box=1, boxborderw = 24, boxcolor='white')
+        gridText3 = ffmpeg.drawtext(gridText2, text=(heatFiles[3].split('.')[0]), x=1200, y=1300, escape_text=True, fontsize = 108, box=1, boxborderw = 24, boxcolor='white')
+        return gridText3
 
-        (
-            ffmpeg
-            .filter([in0, in1], 'vstack')
-            .output("grid" + str(heat) + ".mp4")
-            .run()
-        )
-#         TODO idk what to do in terms of the style
     else:
+        # TODOOOOOOOO
+        # Gonna give errors so keep number of files %4 to 0 otherwise the code won't run
         if len(heatFiles) == 1:
+            # in0 = ffmpeg.input(heatFiles[0])
+            # gridText0 = ffmpeg.drawtext(in0, text=(heatFiles[0].split('.')[0]), x=50, y=570, escape_text=True, fontsize = 108, box=1, boxborderw = 24, boxcolor='white')
             print(heat)
         if len(heatFiles) == 2:
             print(heat)
         if len(heatFiles) == 3:
             print(heat)
-# trying to print the comp numbers, problematic
-    in_file = ffmpeg.input("grid" + str(heat) + ".mp4")
-    (
-        ffmpeg
-        .drawtext(in_file, text="text", x=100, y=600, escape_text=True, fontsize = 108, box=1, boxborderw = 24, boxcolor='white')
-        # .drawtext(in_file, text="text", x=200, y=500, escape_text=True, fontsize = 108, box=1, boxborderw = 24, boxcolor='white')
-        # .drawtext(in_file, text="text", x=300, y=600, escape_text=True, fontsize = 108, box=1, boxborderw = 24, boxcolor='white')
-        # .drawtext(in_file, text="text", x=400, y=600, escape_text=True, fontsize = 108, box=1, boxborderw = 24, boxcolor='white')
-        .output('testtext100.mov')
-        .run()
-    ) 
 
 if __name__ == '__main__':
     main()
