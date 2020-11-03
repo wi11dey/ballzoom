@@ -34,7 +34,6 @@ import math
 import ffmpeg
 
 # What to do with heats 1-3 videos stylewise?
-# also music
 
 # TODO add heat#n https://stackoverflow.com/questions/22710099/ffmpeg-create-blank-screen-with-text-video?fbclid=IwAR12ySj7Ck1b3XMIKNZmlhm1-CTAxSKKq1tZhvzR_fQiYEs4m0MXoL1bqlY
 # TODO need to fit all videos to common size https://superuser.com/questions/566998/how-can-i-fit-a-video-to-a-certain-size-but-dont-upscale-it-with-ffmpeg
