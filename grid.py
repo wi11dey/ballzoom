@@ -4,7 +4,6 @@ import math
 import ffmpeg
 
 
-
 # What to do with heats 1-3 videos stylewise?
 
 
