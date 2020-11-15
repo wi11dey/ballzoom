@@ -43,14 +43,7 @@ def grid(heatFiles, heat, audioFile):
         in1 = ffmpeg.input(heatFiles[1])
         in2 = ffmpeg.input(heatFiles[2])
         in3 = ffmpeg.input(heatFiles[3])
-        # one horizontal input
-        horizontal0 = ffmpeg.filter([in0, in1], 'hstack')
-        # #Make another horizontal row
-        horizontal1 = ffmpeg.filter([in2, in3], 'hstack')        
-
-        # #Take the horizontal rows and put them together vertically
-        gridTemp = ffmpeg.filter([horizontal0, horizontal1], 'vstack')
-
+        gridTemp = ffmpeg.filter([in0, in1, in2, in3], 'xstack', inputs=4, layout='0_0|0_h0|w0_0|w0_h0')
         # add competitor numbers
         gridText0 = ffmpeg.drawtext(gridTemp, text=(heatFiles[0].split('.')[0]), x=50, y=570, escape_text=True, fontsize = 108, box=1, boxborderw = 24, boxcolor='white')
         gridText1 = ffmpeg.drawtext(gridText0, text=(heatFiles[1].split('.')[0]), x=1200, y=570, escape_text=True, fontsize = 108, box=1, boxborderw = 24, boxcolor='white')
