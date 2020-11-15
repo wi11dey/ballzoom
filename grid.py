@@ -34,8 +34,17 @@ def heat(folder):
                 .run()
                 )    
         
-        
 
+# 4x4: grid(files, 0, audio, 4, 4)
+# h = videos horizontally
+# v = vids vertically
+def grid(heatFiles, heatNumber, audio, h, v):
+    files = [ffmpeg.input(heatFile).filter('scale', 640, 280) for heatFile in heatFiles]
+    # 2x2: '0_0|0_h0|w0_0|w0_h0'
+    # 3x2: '0_0|w0_0|w0+w1_0|0_h0|w0_h0|w0+w1_h0'
+    # 2x2, only 3 vids: '0_0|0_h0|w0_0'
+    ffmpeg.filter(files, 'xstack', inputs=len(files), fill='black', layout="FILL IN")
+                
 def grid(heatFiles, heat, audioFile):
     # if there's 4 files for the heat 
     if len(heatFiles) > 3:
@@ -43,7 +52,8 @@ def grid(heatFiles, heat, audioFile):
         in1 = ffmpeg.input(heatFiles[1]).filter('scale', 640, 480)
         in2 = ffmpeg.input(heatFiles[2]).filter('scale', 640, 480)
         in3 = ffmpeg.input(heatFiles[3]).filter('scale', 640, 480)
-        gridTemp = ffmpeg.filter([in0, in1, in2, in3], 'xstack', inputs=4, layout='0_0|0_h0|w0_0|w0_h0')
+        # https://superuser.com/questions/547296/resizing-videos-with-ffmpeg-avconv-to-fit-into-static-sized-player/1136305#1136305
+        gridTemp = ffmpeg.filter([in0, in1, in2, in3], 'xstack', inputs=4, layout='0_0|0_h0|w0_0|w0_h0', fill='black')
         # add competitor numbers
         gridText0 = ffmpeg.drawtext(gridTemp, text=(heatFiles[0].split('.')[0]), x=50, y=570, escape_text=True, fontsize = 108, box=1, boxborderw = 24, boxcolor='white')
         gridText1 = ffmpeg.drawtext(gridText0, text=(heatFiles[1].split('.')[0]), x=1200, y=570, escape_text=True, fontsize = 108, box=1, boxborderw = 24, boxcolor='white')
