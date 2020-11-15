@@ -39,17 +39,16 @@ def heat(folder):
 def grid(heatFiles, heat, audioFile):
     # if there's 4 files for the heat 
     if len(heatFiles) > 3:
-        in0 = ffmpeg.input(heatFiles[0])
-        in1 = ffmpeg.input(heatFiles[1])
-        in2 = ffmpeg.input(heatFiles[2])
-        in3 = ffmpeg.input(heatFiles[3])
+        in0 = ffmpeg.input(heatFiles[0]).filter('scale', 640, 480)
+        in1 = ffmpeg.input(heatFiles[1]).filter('scale', 640, 480)
+        in2 = ffmpeg.input(heatFiles[2]).filter('scale', 640, 480)
+        in3 = ffmpeg.input(heatFiles[3]).filter('scale', 640, 480)
         gridTemp = ffmpeg.filter([in0, in1, in2, in3], 'xstack', inputs=4, layout='0_0|0_h0|w0_0|w0_h0')
         # add competitor numbers
         gridText0 = ffmpeg.drawtext(gridTemp, text=(heatFiles[0].split('.')[0]), x=50, y=570, escape_text=True, fontsize = 108, box=1, boxborderw = 24, boxcolor='white')
         gridText1 = ffmpeg.drawtext(gridText0, text=(heatFiles[1].split('.')[0]), x=1200, y=570, escape_text=True, fontsize = 108, box=1, boxborderw = 24, boxcolor='white')
         gridText2 = ffmpeg.drawtext(gridText1, text=(heatFiles[2].split('.')[0]), x=50, y=1300, escape_text=True, fontsize = 108, box=1, boxborderw = 24, boxcolor='white')
         gridText3 = ffmpeg.drawtext(gridText2, text=(heatFiles[3].split('.')[0]), x=1200, y=1300, escape_text=True, fontsize = 108, box=1, boxborderw = 24, boxcolor='white')
-        rescaledGrid = ffmpeg.filter(gridText3, 'scale', size='hd1080', force_original_aspect_ratio='increase')
         audioInput = ffmpeg.input(audioFile)
         gridAudio = ffmpeg.concat(rescaledGrid, audioInput, v=1, a=1)
         return gridAudio
