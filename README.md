@@ -4,10 +4,7 @@
 What I added to the current rescaled version: added the rescale function to the 1-3 videos per heat cases.
 
 If I have 8(4+4) or 12:
-warning that over 1000 frames duplicated, crashes
-
-
-ValueError: Encountered scale(640, 480) <1c5a59c0a8ab> with multiple outgoing edges with same upstream label None; a `split` filter is probably required
+Works :)))))
 
 If I have 9 (4+4+1):
 works :)))
