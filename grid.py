@@ -1,101 +1,82 @@
-import sys
-import os, os.path
-import math
+import os
 import ffmpeg
+import argparse
+import pathlib
 
+WIDTH=1920
+HEIGHT=1080
 
-# What to do with heats 1-3 videos stylewise?
-
-
-def main():
-    heat(sys.argv[1])
-
-
-def heat(folder):
-    DIR = folder
-    # reading in the files, likely change .mov to .mp4 but currently just testing with my .mov files
-    files = [name for name in os.listdir(DIR) if name.endswith('.mov') and os.path.isfile(os.path.join(DIR, name))]
-    audioFile = [name for name in os.listdir(DIR) if name.endswith('.m4a') and os.path.isfile(os.path.join(DIR, name))]
-    print(files)
-    # count the number of videos and call grid
-    heats = math.ceil(len(files)/4)
-    # heats_temp = ffmpeg.input(grid(files[0: 4], 0))
-    heats_temp = (grid(files[0: 4], 0, audioFile[0]))
-    if heats > 0:
-        for i in range(1, heats):
-            if i < heats-1:
-                # input files by 4 unless it's the last heat
-                heats_temp = ffmpeg.concat(heats_temp, grid(files[(i*4):(i+1)*4], i, audioFile[0]))
-            else:
-                (   
-                ffmpeg
-                .concat(heats_temp, grid(files[i*4::], i, audioFile[0]))
-                .output('heats.mp4')
-                .run()
-                )    
-        
-        
-
-def grid(heatFiles, heat, audioFile):
-    # if there's 4 files for the heat 
-    if len(heatFiles) > 3:
-        in0 = ffmpeg.input(heatFiles[0]).filter('scale', 640, 480)
-        in1 = ffmpeg.input(heatFiles[1]).filter('scale', 640, 480)
-        in2 = ffmpeg.input(heatFiles[2]).filter('scale', 640, 480)
-        in3 = ffmpeg.input(heatFiles[3]).filter('scale', 640, 480)
-        gridTemp = ffmpeg.filter([in0, in1, in2, in3], 'xstack', inputs=4, layout='0_0|0_h0|w0_0|w0_h0')
-        # add competitor numbers
-        gridText0 = ffmpeg.drawtext(gridTemp, text=(heatFiles[0].split('.')[0]), x=50, y=570, escape_text=True, fontsize = 108, box=1, boxborderw = 24, boxcolor='white')
-        gridText1 = ffmpeg.drawtext(gridText0, text=(heatFiles[1].split('.')[0]), x=1200, y=570, escape_text=True, fontsize = 108, box=1, boxborderw = 24, boxcolor='white')
-        gridText2 = ffmpeg.drawtext(gridText1, text=(heatFiles[2].split('.')[0]), x=50, y=1300, escape_text=True, fontsize = 108, box=1, boxborderw = 24, boxcolor='white')
-        gridText3 = ffmpeg.drawtext(gridText2, text=(heatFiles[3].split('.')[0]), x=1200, y=1300, escape_text=True, fontsize = 108, box=1, boxborderw = 24, boxcolor='white')
-        audioInput = ffmpeg.input(audioFile)
-        gridAudio = ffmpeg.concat(rescaledGrid, audioInput, v=1, a=1)
-        return gridAudio
-
-    else:
-        # TODOOOOOOOO
-        # Gonna give errors so keep number of files %4 to 0 otherwise the code won't run
-        if len(heatFiles) == 1:
-            in0 = ffmpeg.input(heatFiles[0])
-            gridText0 = ffmpeg.drawtext(in0, text=(heatFiles[0].split('.')[0]), x=50, y=570, escape_text=True, fontsize = 108, box=1, boxborderw = 24, boxcolor='white')
-            rescaledGrid = ffmpeg.filter(gridText0, 'scale', size='hd1080', force_original_aspect_ratio='increase')
-            audioInput = ffmpeg.input(audioFile)
-            gridAudio = ffmpeg.concat(rescaledGrid, audioInput, v=1, a=1)
-            return gridAudio
-
-        if len(heatFiles) == 2:
-
-            in0x = ffmpeg.input(heatFiles[0])
-            in0= ffmpeg.filter(in0x, 'scale', size='hd1080', force_original_aspect_ratio='increase')
-            in1x = ffmpeg.input(heatFiles[1])
-            in1 = ffmpeg.filter(in1x, 'scale', size='hd1080', force_original_aspect_ratio='increase')
-            in2x = ffmpeg.input('black2.png')
-            in2 = ffmpeg.filter(in2x, 'scale', size='hd1080', force_original_aspect_ratio='increase')
-            in3x = ffmpeg.input('black2.png')
-            in3 = ffmpeg.filter(in3x, 'scale', size='hd1080', force_original_aspect_ratio='increase')
-
+LAYOUTS=[
+    ((1,   1),   ()),
+    ((1,   1),   ((0, 0),)),
+    ((1,   0.5), ((0, 0), (0, 1))),
+    ((0.5, 0.5), ((0, 0), (0, 1), (1, 0))),
+    ((0.5, 0.5), ((0, 0), (0, 1), (1, 0), (1, 1)))
+]
             
+def grid(recordings):
+    if len(recordings) >= len(LAYOUTS):
+        raise ValueError(f'No grid layout exists for {len(recordings)} recordings')
 
-            horizontal0 = ffmpeg.filter([in0, in1], 'hstack')
-            # #Make another horizontal row
-            horizontal1 = ffmpeg.filter([in2, in3], 'hstack')        
+    layout = LAYOUTS[len(recordings)]
 
-            # #Take the horizontal rows and put them together vertically
-            gridTemp = ffmpeg.filter([horizontal0, horizontal1], 'vstack')
+    inputs = [ffmpeg
+              .input(file)
+              .video
+              .filter('scale', layout[0][0]*WIDTH, layout[0][1]*HEIGHT, force_original_aspect_ratio='decrease')
+              .filter('pad',   layout[0][0]*WIDTH, layout[0][1]*HEIGHT, -1, -1, color='black')
+              for number, file in recordings]
 
-            # add competitor numbers
-            gridText0 = ffmpeg.drawtext(gridTemp, text=(heatFiles[0].split('.')[0]), x=50, y=570, escape_text=True, fontsize = 108, box=1, boxborderw = 24, boxcolor='white')
-            gridText1 = ffmpeg.drawtext(gridText0, text=(heatFiles[1].split('.')[0]), x=1200, y=570, escape_text=True, fontsize = 108, box=1, boxborderw = 24, boxcolor='white')
-            # gridText2 = ffmpeg.drawtext(gridText1, text=(heatFiles[2].split('.')[0]), x=50, y=1300, escape_text=True, fontsize = 108, box=1, boxborderw = 24, boxcolor='white')
-            # gridText3 = ffmpeg.drawtext(gridText2, text=(heatFiles[3].split('.')[0]), x=1200, y=1300, escape_text=True, fontsize = 108, box=1, boxborderw = 24, boxcolor='white')
-            rescaledGrid = ffmpeg.filter(gridText1, 'scale', size='hd1080', force_original_aspect_ratio='increase')
-            audioInput = ffmpeg.input(audioFile)
-            gridAudio = ffmpeg.concat(rescaledGrid, audioInput, v=1, a=1)
-            return gridAudio
-        
-        if len(heatFiles) == 3:
-            print(heat)
+    if len(inputs) > 1:
+        grid = ffmpeg.filter(inputs,
+                             'xstack',
+                             inputs=len(inputs),
+                             layout="|".join(str(x*layout[0][0]*WIDTH) + '_' + str(y*layout[0][1]*HEIGHT) for x, y in layout[1]),
+                             fill='black')
+    else:
+        grid = inputs[0]
+
+    for recording, position in zip(recordings, layout[1]):
+        number, file = recording
+        x, y = position
+        grid = grid.drawtext(text=number,
+                             x=x*layout[0][0]*WIDTH  + 24,
+                             y=y*layout[0][1]*HEIGHT + 24,
+                             fontsize=108,
+                             box=1,
+                             boxborderw=24,
+                             boxcolor='white',
+                             font='Segoe UI')
+
+    return grid.filter('pad', WIDTH, HEIGHT, -1, -1, color='black')
+
+def heats(recordings, audio, output):
+    audio_input = ffmpeg.input(audio).audio
+
+    pathlib.Path(output).parent.mkdir(parents=True, exist_ok=True)
+
+    j = 0
+    for i in range(0, len(recordings), len(LAYOUTS) - 1):
+        if len(recordings[i:len(LAYOUTS) - 1]) == 0:
+            break
+        j += 1
+        grid(recordings[i:len(LAYOUTS) - 1]).output(audio_input, output.format(j), vsync=2).run()
 
 if __name__ == '__main__':
-    main()
+    parser = argparse.ArgumentParser(description='Generate competition grids from dancer videos.')
+    parser.add_argument('video', help="Directory of dancer's videos, titled like 999_Bronze_Latin.mp4")
+    parser.add_argument('audio', help='Directory of competition audio, with a structure like Bronze > Latin > some_audio.mp3')
+    parser.add_argument('output', help='Directory to put finished grids')
+    args = parser.parse_args()
+
+    all_recordings = {}
+    for root, dirs, files in os.walk(args.video):
+        for file in files:
+            number, level, style, *costume = os.path.splitext(file)[0].split('_')
+            all_recordings.setdefault(style, {}).setdefault(level, []).append((number, os.path.join(root, file)))
+
+    for style, levels in all_recordings.items():
+        for level, recordings in levels.items():
+            heats(recordings,
+                  os.path.join(args.audio, level, style, os.listdir(os.path.join(args.audio, level, style))[0]),
+                  os.path.join(args.output, style, level, "heat{}.mp4"))
