@@ -57,10 +57,10 @@ def heats(recordings, audio, output):
 
     j = 0
     for i in range(0, len(recordings), len(LAYOUTS) - 1):
-        if len(recordings[i:len(LAYOUTS) - 1]) == 0:
+        if len(recordings[i:i + len(LAYOUTS) - 1]) == 0:
             break
         j += 1
-        grid(recordings[i:len(LAYOUTS) - 1]).output(audio_input, output.format(j), vsync=2).run()
+        grid(recordings[i:i + len(LAYOUTS) - 1]).output(audio_input, output.format(j), vsync=2).run()
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Generate competition grids from dancer videos.')
