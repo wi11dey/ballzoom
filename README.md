@@ -5,6 +5,9 @@
  <a href="https://youtu.be/aOADo7qGBds"><img src="https://i.imgur.com/5GahXea.gif" alt="Clip of Harvard Ballzoom platform" /></a>
 </p>
 
+On November 20 - November 22 Harvard Ballroom Dance Team hosted their yearly competition 'Harvard Beginners', however due to the COVID-19 pandemic it was entirely virtual for the first time in the history. A big part of the competition was broadcasting the dancers' performances to continue the tradition of expressing team spirit and supporting other dancers during the event. This tool provided to be extremely helpful while managing numerous submissions of files in multiple categories and styles. 'Harvard Beginners' provided an opportunity for the team's community to stay connected during these unprecedented times and we hope this would inspire other groups or organizations to approach their events or project in a virtual way.
+This piece of software allows individuals to put different videos in a custom-made grid, add music to the clips, and print names or other important information in the video. The applications of the tool are not limited to dance competition, it could also prove to be useful for music groups, or any other organization that relies on distribution of videos submitted by many different individuals.
+
 See [here](https://youtu.be/aOADo7qGBds) for the first collegiate virtual comp!
 
 ## How to host your own!
@@ -16,7 +19,7 @@ See [here](https://youtu.be/aOADo7qGBds) for the first collegiate virtual comp!
         + Latin
           + any_file_name.mp3
         + Standard
-          + music.mp4
+          + music.mp3
       + Silver
         + Rhythm
           + ...
