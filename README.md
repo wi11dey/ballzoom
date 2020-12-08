@@ -1,38 +1,43 @@
-# ballzoom
-🕺💃
+# Harvard Ball<i>zoom</i>
 
-What I added to the current rescaled version: added the rescale function to the 1-3 videos per heat cases.
+<p align="center">
+ A platform for hosting ballroom online 🕺💃<br />
+ <a href="https://youtu.be/aOADo7qGBds"><img src="https://i.imgur.com/5GahXea.gif" alt="Clip of Harvard Ballzoom platform" /></a>
+</p>
 
+See [here](https://youtu.be/aOADo7qGBds) for the first collegiate virtual comp!
 
-If all the same size:
-8
-works :)
-9
-Input link in0:v0 parameters (size 1440x1080, SAR 0:1) do not match the corresponding output link in0:v0 parameters (1280x960, SAR 9:8)
-[Parsed_concat_33 @ 0x7fa269a1f880] Failed to configure output pad on Parsed_concat_33
-Error reinitializing filters!
-Failed to inject frame into filter network: Invalid argument
-Error while processing the decoded data for stream #12:0
+## How to host your own!
 
-10
-works but adds videos horizontally (black line horizontal, fix...)
-:)
+1. Set up a system to receive video recordings from your competitors, titled like `999_Bronze_Latin.mp4`. Everything before the first underscore will be used as the competitor number, even if it contains non-digits.
+1. Organize the music you want your competitors to dance to with a directory structure like
+    + (root audio folder)
+      + Bronze
+        + Latin
+          + any_file_name.mp3
+        + Standard
+          + music.mp4
+      + Silver
+        + Rhythm
+          + ...
 
-11
- Input link in0:v0 parameters (size 1440x1080, SAR 9:8) do not match the corresponding output link in0:v0 parameters (1280x960, SAR 9:8)
-[Parsed_concat_33 @ 0x7fdb4d0428c0] Failed to configure output pad on Parsed_concat_33
-Error reinitializing filters!
-Failed to inject frame into filter network: Invalid argument
-Error while processing the decoded data for stream #12:0
+   and send the folder to your competitors to dance to. The filenames you use for the music doesn't matter: the first file found in the folder will be used as the true audio when stitching together all the videos.
+1. Once you've received all your submissions titled in the form `999_Bronze_Latin.mp4`, run
 
+   `python grid.py directory_with_submissions directory_with_music_you_sent_out output_directory`
+   
+   and watch the magic. You will need [Python](https://www.python.org/) and [FFmpeg](https://ffmpeg.org/) installed.
+1. The code will strip all audio from dancer's videos, stitch them into grids, and overlay the original audio over all of them. The output directory will be structured like
+    + (root output folder)
+      + Latin
+        + Newcomer
+          + heat1.mp4
+        + Silver
+          + heat1.mp4
+          + heat2.mp4
+      + Rhythm
+        + ...
 
+   so the announcers can broadcast each one at their pace. See [https://youtu.be/aOADo7qGBds](https://youtu.be/aOADo7qGBds) for an example of a successful comp.
 
-
-If different scales:
-
-More than 1000 frames duplicated.
- Frame rate very high for a muxer not efficiently supporting it.
-Please consider specifying a lower framerate, a different muxer or -vsync 2
-[libx264 @ 0x7fd4a700de00] using SAR=9/8
-[libx264 @ 0x7fd4a700de00] MB rate (4800000000) > level limit (16711680)
-
+_from Will Dey and Angelika Antsmäe, Harvard Class of 2023_
